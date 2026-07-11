@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administrador | Serviços Ambientais</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-color:#f0f0f0; font-family:sans-serif; padding:20px;">
+
+<div id="login-box">
+    <h2>Login de Administrador</h2>
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="password" id="senha" placeholder="Password"><br><br>
+    <button onclick="fazerLogin()">Entrar</button>
+    <p id="erro-login" style="color:red;"></p>
+</div>
+
+<div id="painel" style="display:none;">
+    <h2>Solicitações Recebidas</h2>
+    <button onclick="sair()">Sair</button>
+    <div id="lista-solicitacoes"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAHwR6Ru_YSGygQmAeqNOy_gKTRpzCaNyU",
+    authDomain: "servicos-ambientais-ddcea.firebaseapp.com",
+    projectId: "servicos-ambientais-ddcea",
+    storageBucket: "servicos-ambientais-ddcea.firebasestorage.app",
+    messagingSenderId: "829923816137",
+    appId: "1:829923816137:web:ee0c402ec83ba6c93c9318"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window.fazerLogin = function() {
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
+    signInWithEmailAndPassword(auth, email, senha)
+      .catch((error) => {
+        document.getElementById('erro-login').innerText = "Email ou password incorretos.";
+      });
+  }
+
+  window.sair = function() {
+    signOut(auth);
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById('login-box').style.display = 'none';
+      document.getElementById('painel').style.display = 'block';
+      carregarSolicitacoes();
+    } else {
+      document.getElementById('login-box').style.display = 'block';
+      document.getElementById('painel').style.display = 'none';
+    }
+  });
+
+  async function carregarSolicitacoes() {
+    const lista = document.getElementById('lista-solicitacoes');
+    lista.innerHTML = "A carregar...";
+    const querySnapshot = await getDocs(collection(db, "solicitacoes"));
+    lista.innerHTML = "";
+    if (querySnapshot.empty) {
+      lista.innerHTML = "<p>Nenhuma solicitação recebida ainda.</p>";
+      return;
+    }
+    querySnapshot.forEach((docSnap) => {
+      const dados = docSnap.data();
+      const div = document.createElement('div');
+      div.style = "border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px;";
+      div.innerHTML = `
+        <strong>Serviço:</strong> ${dados.servico || '-'}<br>
+        <strong>Nome:</strong> ${dados.nome || '-'}<br>
+        <strong>Telefone:</strong> ${dados.telefone || '-'}<br>
+        <strong>Endereço/Local:</strong> ${dados.endereco || dados.local || '-'}<br>
+        <strong>Estado:</strong> <span id="estado-${docSnap.id}">${dados.estado || 'Pendente'}</span><br>
+        <button onclick="marcarRespondido('${docSnap.id}')">Marcar como Respondido</button>
+      `;
+      lista.appendChild(div);
+    });
+  }
+
+  window.marcarRespondido = async function(id) {
+    await updateDoc(doc(db, "solicitacoes", id), { estado: "Respondido" });
+    document.getElementById(`estado-${id}`).innerText = "Respondido";
+  }
+</script>
+
+</body>
+</html>

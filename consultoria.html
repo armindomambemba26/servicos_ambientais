@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultoria Ambiental | Serviços Ambientais</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-color:greenyellow">
+<div style="background-image: url('1740755541132.jpg'); background-size: cover; background-position: center; min-height:100vh;">
+<header>
+    <h1>SERVIÇOS AMBIENTAIS E DE GESTÃO DE RESÍDUOS</h1>
+    <button class="menu-toggle" onclick="document.querySelector('nav ul').classList.toggle('ativo')">☰</button>
+    <nav>
+        <ul>
+            <li><a href="index.html">Início</a></li>
+            <li><a href="sobre.html">Sobre</a></li>
+            <li><a href="servicos.html">Serviços</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+    </nav>
+</header>
+  
+<section class="conteudo">
+
+    <div style="background-color: rgba(0,0,0,0.55); padding:15px; border-radius:10px; margin-bottom:20px;">
+        <h2 style="color: white; margin:0;">Consultoria Ambiental</h2>
+        <p style="color: white;">Apoio técnico a empresas e instituições para cumprimento das normas ambientais vigentes em Angola, incluindo auditorias e planos de gestão de resíduos.</p>
+    </div>
+
+    <div style="background-color: rgba(0,0,0,0.55); padding:15px; border-radius:10px;">
+        <h3 style="color: gold; margin-top:0;">Solicitar este serviço</h3>
+
+        <form id="form-solicitacao">
+            <label style="color:white;">Nome da Empresa/Instituição:</label><br>
+            <input type="text" id="empresa" required><br><br>
+            <label style="color:white;">Email:</label><br>
+            <input type="email" id="email" required><br><br>
+            <label style="color:white;">Telefone:</label><br>
+            <input type="text" id="telefone" required><br><br>
+            <button type="submit">Enviar Solicitação</button>
+        </form>
+        <p id="mensagem-envio" style="color:lightgreen;"></p>
+
+        <p><a href="servicos.html" style="color:gold;">&larr; Voltar a Serviços</a></p>
+    </div>
+
+</section>
+
+<footer>
+    <h4>©2026 Serviços Ambientais e de Gestão de Resíduos</h4>
+</footer>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAHwR6Ru_YSGygQmAeqNOy_gKTRpzCaNyU",
+    authDomain: "servicos-ambientais-ddcea.firebaseapp.com",
+    projectId: "servicos-ambientais-ddcea",
+    storageBucket: "servicos-ambientais-ddcea.firebasestorage.app",
+    messagingSenderId: "829923816137",
+    appId: "1:829923816137:web:ee0c402ec83ba6c93c9318"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  document.getElementById('form-solicitacao').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const empresa = document.getElementById('empresa').value;
+    const email = document.getElementById('email').value;
+    const telefone = document.getElementById('telefone').value;
+
+    try {
+      await addDoc(collection(db, "solicitacoes"), {
+        servico: "Consultoria Ambiental",
+        nome: empresa,
+        endereco: email,
+        telefone: telefone,
+        estado: "Pendente",
+        data: new Date().toISOString()
+      });
+      document.getElementById('mensagem-envio').innerText = "Solicitação enviada com sucesso!";
+      document.getElementById('form-solicitacao').reset();
+    } catch (error) {
+      document.getElementById('mensagem-envio').style.color = "red";
+      document.getElementById('mensagem-envio').innerText = "Erro ao enviar. Tenta novamente.";
+    }
+  });
+</script>
+
+</body>
+</html>
