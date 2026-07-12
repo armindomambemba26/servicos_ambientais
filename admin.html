@@ -6,9 +6,9 @@
     <title>Painel de Administrador | Serviços Ambientais</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="background-color:#f0f0f0; font-family:sans-serif; padding:20px;">
+<body style="background-image: url('IMG_20260711_142424.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height:100vh; margin:0; font-family:sans-serif;">
 
-<div id="login-box">
+<div id="login-box" style="background-color: rgba(255,255,255,0.85); padding:20px; border-radius:10px; max-width:400px; margin:40px auto;">
     <h2>Login de Administrador</h2>
     <input type="email" id="email" placeholder="Email"><br><br>
     <input type="password" id="senha" placeholder="Password"><br><br>
@@ -16,7 +16,7 @@
     <p id="erro-login" style="color:red;"></p>
 </div>
 
-<div id="painel" style="display:none;">
+<div id="painel" style="display:none; background-color: rgba(255,255,255,0.85); padding:20px; border-radius:10px; max-width:600px; margin:40px auto;">
     <h2>Solicitações Recebidas</h2>
     <button onclick="sair()">Sair</button>
     <div id="lista-solicitacoes"></div>
@@ -75,6 +75,10 @@
     }
     querySnapshot.forEach((docSnap) => {
       const dados = docSnap.data();
+      const telefoneLimpo = (dados.telefone || '').replace(/\D/g, '');
+      const mensagem = encodeURIComponent(`Olá ${dados.nome || ''}, a sua solicitação de ${dados.servico || 'serviço'} foi respondida pela nossa equipa. Obrigado por confiar em nós!`);
+      const linkWhatsapp = `https://wa.me/244${telefoneLimpo}?text=${mensagem}`;
+
       const div = document.createElement('div');
       div.style = "border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px;";
       div.innerHTML = `
@@ -82,8 +86,9 @@
         <strong>Nome:</strong> ${dados.nome || '-'}<br>
         <strong>Telefone:</strong> ${dados.telefone || '-'}<br>
         <strong>Endereço/Local:</strong> ${dados.endereco || dados.local || '-'}<br>
-        <strong>Estado:</strong> <span id="estado-${docSnap.id}">${dados.estado || 'Pendente'}</span><br>
+        <strong>Estado:</strong> <span id="estado-${docSnap.id}">${dados.estado || 'Pendente'}</span><br><br>
         <button onclick="marcarRespondido('${docSnap.id}')">Marcar como Respondido</button>
+        <a href="${linkWhatsapp}" target="_blank" style="margin-left:10px; text-decoration:none; background-color:#25D366; color:white; padding:6px 12px; border-radius:6px;">📲 Notificar via WhatsApp</a>
       `;
       lista.appendChild(div);
     });
